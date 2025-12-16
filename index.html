@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>My 2026 Archive // Y3K</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;700&family=Montserrat:wght@800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050608;
+            --accent-pink: #ffb7ff;
+            --accent-blue: #b2ffff;
+            --laser: linear-gradient(135deg, #ffb7ff 0%, #b2ffff 50%, #e0c3fc 100%);
+            --glass: rgba(255, 255, 255, 0.05);
+            --vh: 1vh;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg);
+            color: #fff;
+            font-family: 'Comfortaa', cursive;
+            /* iOS 滚动捕捉关键属性 */
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* 背景流体动画 */
+        .aura-container {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+        .blob {
+            position: absolute;
+            width: 150vw; height: 150vw;
+            background: var(--laser);
+            filter: blur(80px);
+            opacity: 0.15;
+            border-radius: 50%;
+            animation: rotate 40s infinite linear;
+            top: -25%; left: -25%;
+        }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* iPhone 侧边流体进度球 */
+        .nav-rail {
+            position: fixed;
+            right: 15px;
+            top: 30%;
+            height: 40%;
+            width: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            z-index: 100;
+        }
+        .nav-ball {
+            position: absolute;
+            left: 50%; top: 0;
+            width: 12px; height: 12px;
+            background: white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 15px var(--accent-blue);
+            transition: top 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        /* Section 布局 */
+        section {
+            height: 100vh;
+            height: calc(var(--vh, 1vh) * 100);
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+            position: relative;
+        }
+
+        /* 统一卡片样式 */
+        .card {
+            width: 90%;
+            max-width: 360px;
+            background: var(--glass);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 0.5px solid rgba(255, 255, 255, 0.2);
+            border-radius: 40px;
+            padding: 35px 25px;
+            transform: scale(0.9);
+            opacity: 0;
+            transition: all 0.8s cubic-bezier(0.34, 1.3, 0.64, 1);
+        }
+        section.active .card { transform: scale(1); opacity: 1; }
+
+        /* 文本样式 */
+        .tag { font-size: 0.7rem; color: var(--accent-blue); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 10px; display: block; }
+        .value { font-family: 'Montserrat', sans-serif; font-size: 2.8rem; margin: 10px 0; background: var(--laser); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .desc { font-size: 1rem; line-height: 1.6; color: rgba(255, 255, 255, 0.7); }
+
+        /* --- 核心图库模块 --- */
+        .gallery-wrap {
+            position: relative;
+            width: 100%;
+            height: 280px;
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .instax {
+            position: absolute;
+            width: 160px;
+            height: 210px;
+            background: #fff;
+            padding: 8px 8px 30px 8px; /* 模拟拍立得相纸 */
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            transition: all 1s cubic-bezier(0.23, 1, 0.32, 1);
+            opacity: 0;
+            transform: scale(0.5) rotate(0deg);
+        }
+        .instax-img {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-color: #111;
+            /* 增加一点怀旧噪点感 */
+            filter: contrast(1.1) saturate(1.1);
+        }
+        /* 照片标签 */
+        .instax::after {
+            content: attr(data-label);
+            position: absolute;
+            bottom: 8px; left: 8px;
+            font-size: 10px; color: #555;
+            font-weight: bold; font-family: monospace;
+        }
+
+        /* 激活时的散落效果 */
+        section.active .p1 { opacity: 0.8; transform: rotate(-12deg) translate(-50px, -10px); }
+        section.active .p2 { opacity: 0.8; transform: rotate(10deg) translate(45px, 15px); transition-delay: 0.1s; }
+        section.active .p3 { opacity: 1; transform: rotate(-2deg) scale(1.05); z-index: 5; transition-delay: 0.3s; }
+
+        /* 封面特有字体 */
+        .hero-year { font-family: 'Montserrat', sans-serif; font-size: 5rem; letter-spacing: -4px; line-height: 0.8; background: var(--laser); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; }
+
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    </style>
+</head>
+<body>
+
+    <div class="aura-container">
+        <div class="blob"></div>
+    </div>
+
+    <div class="nav-rail">
+        <div class="nav-ball" id="ball"></div>
+    </div>
+
+    <section id="s1" class="active">
+        <h1 class="hero-year">2026</h1>
+        <p style="letter-spacing: 6px; opacity: 0.4; font-size: 0.7rem; margin-top: 10px;">PERSONAL ARCHIVE</p>
+        <div style="position: absolute; bottom: 60px; font-size: 20px; animation: bounce 2s infinite; opacity: 0.3;">↓</div>
+    </section>
+
+    <section id="s2">
+        <div class="card">
+            <span class="tag">Digital & Media</span>
+            <div class="value">876 hrs</div>
+            <p class="desc">耳机里的 [曲风] 是 2026 的背景音。某人躲在音符里偷偷充电。🎧</p>
+        </div>
+    </section>
+
+    <section id="s3">
+        <div class="card" style="background: transparent; border: none; backdrop-filter: none; text-align: center; width: 100%;">
+            <span class="tag">Moment Gallery 📸</span>
+            <div class="gallery-wrap">
+                <div class="instax p1" data-label="JAN_26 / NOSTALGIA">
+                    <div class="instax-img" style="background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400');"></div>
+                </div>
+                <div class="instax p2" data-label="AUG_26 / VIBES">
+                    <div class="instax-img" style="background-image: url('https://images.unsplash.com/photo-1633167606207-d840b5070fc2?w=400');"></div>
+                </div>
+                <div class="instax p3" data-label="THE_MOMENT_2026">
+                    <div class="instax-img" style="background-image: url('https://images.unsplash.com/photo-1614850523296-d8c1af93d400?w=400');"></div>
+                </div>
+            </div>
+            <p class="desc" style="margin-top: 10px;">快门按了 <span style="color: var(--accent-pink);">2,401</span> 次，<br>最爱的瞬间，依然是这一刻。🫧</p>
+        </div>
+    </section>
+
+    <section id="s4">
+        <div class="card">
+            <span class="tag">Energy Status</span>
+            <div class="value">124 cups</div>
+            <p class="desc">消耗了 124 杯冰美式。这一年，靠着咖啡因和一点点运气活了下来。☕️</p>
+        </div>
+    </section>
+
+    <section id="s5">
+        <div class="card" style="text-align: center; border: 1px solid var(--accent-blue);">
+            <div style="background: var(--accent-blue); color: #000; display: inline-block; padding: 2px 10px; border-radius: 5px; font-size: 0.6rem; font-weight: bold; margin-bottom: 15px;">2026 IDENTITY</div>
+            <div class="value" style="font-size: 2.2rem;">清冷系特种兵</div>
+            <p class="desc">“主要在摆烂，偶尔在拯救世界。”</p>
+            <div style="margin-top: 30px; opacity: 0.3; font-size: 0.6rem; letter-spacing: 2px;">ARCHIVE_@USER_2026</div>
+        </div>
+    </section>
+
+    <script>
+        // 1. iPhone 动态高度修复
+        const setVh = () => {
+            document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+        };
+        window.addEventListener('resize', setVh);
+        setVh();
+
+        // 2. 滚动观测与球体联动
+        const sections = document.querySelectorAll('section');
+        const ball = document.getElementById('ball');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    sections.forEach(s => s.classList.remove('active'));
+                    entry.target.classList.add('active');
+                    
+                    const idx = Array.from(sections).indexOf(entry.target);
+                    const pos = (idx / (sections.length - 1)) * 100;
+                    ball.style.top = `${pos}%`;
+                }
+            });
+        }, { threshold: 0.6 });
+
+        sections.forEach(s => observer.observe(s));
+
+        // 3. 简单的触控反馈
+        document.addEventListener('touchstart', () => {}, {passive: true});
+    </script>
+</body>
+</html>
